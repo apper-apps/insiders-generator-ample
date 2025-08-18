@@ -185,11 +185,7 @@ function AppContent() {
 
 // Main App component that provides Router context
 function App() {
-  return (
-    <BrowserRouter>
-      <AppContent />
-    </BrowserRouter>
-  );
+  return <AppContent />;
 }
 
 export default App;
