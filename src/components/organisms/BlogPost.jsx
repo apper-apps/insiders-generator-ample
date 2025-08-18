@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import ContentSection from "@/components/molecules/ContentSection";
-import TextArea from "@/components/atoms/TextArea";
 import Button from "@/components/atoms/Button";
+import TextArea from "@/components/atoms/TextArea";
 
 const BlogPost = ({ content }) => {
   const [copiedType, setCopiedType] = useState(null);
@@ -44,16 +44,32 @@ const BlogPost = ({ content }) => {
       .trim();
   };
 
-  const handleCopyPlainText = async () => {
+const handleCopyPlainText = async () => {
     try {
       const plainText = stripMarkdown(content);
-      await navigator.clipboard.writeText(plainText);
+      
+      // Try modern Clipboard API first
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(plainText);
+      } else {
+        // Fallback for older browsers or non-secure contexts
+        const textarea = document.createElement('textarea');
+        textarea.value = plainText;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      
       setCopiedType("plain");
       toast.success("Plain text copied to clipboard!");
       setTimeout(() => setCopiedType(null), 2000);
     } catch (err) {
       console.error("Failed to copy plain text: ", err);
-      toast.error("Failed to copy to clipboard");
+      toast.error("Failed to copy to clipboard. Please try selecting and copying manually.");
     }
   };
 
@@ -62,22 +78,37 @@ const handleCopyRichText = async () => {
       const htmlContent = convertMarkdownToHtml(content);
       const plainText = stripMarkdown(content);
       
-      if (navigator.clipboard.write && typeof ClipboardItem !== 'undefined') {
-        const clipboardItem = new ClipboardItem({
-          "text/html": new Blob([htmlContent], { type: "text/html" }),
-          "text/plain": new Blob([plainText], { type: "text/plain" })
-        });
-        await navigator.clipboard.write([clipboardItem]);
+      // Try modern Clipboard API with rich text support
+if (navigator.clipboard && window.isSecureContext) {
+        if (navigator.clipboard.write && typeof window.ClipboardItem !== 'undefined') {
+          const clipboardItem = new window.ClipboardItem({
+            "text/html": new Blob([htmlContent], { type: "text/html" }),
+            "text/plain": new Blob([plainText], { type: "text/plain" })
+          });
+          await navigator.clipboard.write([clipboardItem]);
+        } else {
+          // Fallback to plain text if rich text not supported
+          await navigator.clipboard.writeText(plainText);
+        }
       } else {
-        await navigator.clipboard.writeText(htmlContent);
+        // Fallback for older browsers or non-secure contexts
+        const textarea = document.createElement('textarea');
+        textarea.value = plainText;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
       }
       
       setCopiedType("rich");
-      toast.success("Rich text copied to clipboard!");
+      toast.success("Content copied to clipboard!");
       setTimeout(() => setCopiedType(null), 2000);
     } catch (err) {
       console.error("Failed to copy rich text: ", err);
-      toast.error("Failed to copy to clipboard");
+      toast.error("Failed to copy to clipboard. Please try selecting and copying manually.");
     }
   };
 
