@@ -17,7 +17,15 @@ const InitialState = () => {
     "Forum discussions",
     "SEO-optimized tags",
     "Timestamp breakdowns"
-  ];
+];
+
+  const [selectedTypes, setSelectedTypes] = useState(new Array(contentTypes.length).fill(false));
+  
+  const toggleContentType = (index) => {
+    const newSelected = [...selectedTypes];
+    newSelected[index] = !newSelected[index];
+    setSelectedTypes(newSelected);
+  };
 
   return (
     <Card className="max-w-4xl mx-auto">
@@ -56,16 +64,9 @@ const InitialState = () => {
             What do you need?
           </h3>
           <div className="space-y-3">
-            {contentTypes.map((type, index) => {
-              const [selectedTypes, setSelectedTypes] = useState(new Array(contentTypes.length).fill(false));
-              
-              const toggleContentType = (index) => {
-                const newSelected = [...selectedTypes];
-                newSelected[index] = !newSelected[index];
-                setSelectedTypes(newSelected);
-              };
-
+{contentTypes.map((type, index) => {
               return (
+
                 <div 
                   key={index} 
                   className="flex items-center gap-3 cursor-pointer"
