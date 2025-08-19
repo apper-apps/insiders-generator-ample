@@ -19,7 +19,7 @@ import { AuthContext } from "../../App";
 import { useSelector } from "react-redux";
 
 const ContentGenerator = () => {
-const [generatedContent, setGeneratedContent] = useState(null);
+  const [generatedContent, setGeneratedContent] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showPromptEditor, setShowPromptEditor] = useState(false);
