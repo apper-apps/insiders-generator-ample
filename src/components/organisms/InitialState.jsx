@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Card from "@/components/atoms/Card";
 import ApperIcon from "@/components/ApperIcon";
 
@@ -50,20 +50,40 @@ const InitialState = () => {
           </div>
         </div>
 
-        <div className="space-y-4">
+<div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <ApperIcon name="ArrowDown" size={18} className="text-green-600" />
-            What you'll get
+            What do you need?
           </h3>
           <div className="space-y-3">
-            {contentTypes.map((type, index) => (
-              <div key={index} className="flex items-center gap-3">
-                <div className="w-5 h-5 bg-green-100 rounded flex items-center justify-center">
-                  <ApperIcon name="Check" size={14} className="text-green-600" />
+            {contentTypes.map((type, index) => {
+              const [selectedTypes, setSelectedTypes] = useState(new Array(contentTypes.length).fill(false));
+              
+              const toggleContentType = (index) => {
+                const newSelected = [...selectedTypes];
+                newSelected[index] = !newSelected[index];
+                setSelectedTypes(newSelected);
+              };
+
+              return (
+                <div 
+                  key={index} 
+                  className="flex items-center gap-3 cursor-pointer"
+                  onClick={() => toggleContentType(index)}
+                >
+                  <div className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
+                    selectedTypes[index] 
+                      ? 'bg-green-100' 
+                      : 'border-2 border-gray-300 bg-white'
+                  }`}>
+                    {selectedTypes[index] && (
+                      <ApperIcon name="Check" size={14} className="text-green-600" />
+                    )}
+                  </div>
+                  <p className="text-gray-700">{type}</p>
                 </div>
-                <p className="text-gray-700">{type}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
