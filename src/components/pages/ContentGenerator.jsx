@@ -1,29 +1,29 @@
-import React, { useState, useContext } from "react";
+import React, { useContext, useState } from "react";
 import { toast } from "react-toastify";
-import { motion, AnimatePresence } from "framer-motion";
-import Button from "@/components/atoms/Button";
-import ApperIcon from "@/components/ApperIcon";
-import InitialState from "@/components/organisms/InitialState";
-import VoiceAnalysis from "@/components/organisms/VoiceAnalysis";
-import ContentMetrics from "@/components/organisms/ContentMetrics";
-import YouTubeDescription from "@/components/organisms/YouTubeDescription";
-import TimestampsSection from "@/components/organisms/TimestampsSection";
-import SEOTags from "@/components/organisms/SEOTags";
-import ForumPost from "@/components/organisms/ForumPost";
-import BlogPost from "@/components/organisms/BlogPost";
-import PromptEditor from "@/components/organisms/PromptEditor";
-import Loading from "@/components/ui/Loading";
-import Error from "@/components/ui/Error";
-import contentService from "@/services/api/contentService";
+import { AnimatePresence, motion } from "framer-motion";
 import { AuthContext } from "../../App";
 import { useSelector } from "react-redux";
+import ApperIcon from "@/components/ApperIcon";
+import Error from "@/components/ui/Error";
+import Loading from "@/components/ui/Loading";
+import YouTubeDescription from "@/components/organisms/YouTubeDescription";
+import ForumPost from "@/components/organisms/ForumPost";
+import VoiceAnalysis from "@/components/organisms/VoiceAnalysis";
+import SEOTags from "@/components/organisms/SEOTags";
+import BlogPost from "@/components/organisms/BlogPost";
+import InitialState from "@/components/organisms/InitialState";
+import ContentMetrics from "@/components/organisms/ContentMetrics";
+import TimestampsSection from "@/components/organisms/TimestampsSection";
+import PromptEditor from "@/components/organisms/PromptEditor";
+import Button from "@/components/atoms/Button";
+import contentService from "@/services/api/contentService";
 
 const ContentGenerator = () => {
   const [generatedContent, setGeneratedContent] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showPromptEditor, setShowPromptEditor] = useState(false);
-  const [selectedTypes, setSelectedTypes] = useState(() => {
+const [selectedTypes, setSelectedTypes] = useState(() => {
     const contentTypes = [
       "Voice & tone analysis",
       "YouTube descriptions", 
@@ -36,6 +36,36 @@ const ContentGenerator = () => {
     initialState[contentTypes.length - 1] = false; // Blog post unchecked by default
     return initialState;
   });
+
+  // Add this section to make Edit Prompt button always visible
+  const renderHeader = () => (
+    <div className="flex justify-between items-start mb-8">
+      <div>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+          Content Generator
+        </h1>
+        <p className="text-gray-600">Transform your video transcripts into SEO-optimized content across multiple platforms</p>
+      </div>
+      <div className="flex gap-3">
+        <Button
+          variant="outline"
+          icon="Settings"
+          onClick={() => setShowPromptEditor(true)}
+        >
+Edit Prompt
+        </Button>
+        {generatedContent && (
+          <Button
+            variant="outline"
+            icon="RotateCcw"
+            onClick={handleReset}
+          >
+            Reset
+          </Button>
+        )}
+      </div>
+    </div>
+  );
   const [customPrompt, setCustomPrompt] = useState(`You are an expert content creator and SEO specialist. Transform the provided video transcript into comprehensive, SEO-optimized content for multiple platforms. Analyze the transcript and generate:
 
 1. VOICE ANALYSIS:
