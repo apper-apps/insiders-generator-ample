@@ -85,7 +85,7 @@ const mockContentData = {
 };
 
 const contentService = {
-generateContent: async (transcript, customPrompt, selectedTypes) => {
+  generateContent: async (transcript, customPrompt, selectedTypes) => {
     // Simulate realistic API delay
     await delay(2000);
     

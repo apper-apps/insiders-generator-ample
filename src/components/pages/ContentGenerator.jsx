@@ -271,7 +271,7 @@ const handleGenerateContent = async () => {
               exit={{ opacity: 0, y: -20 }}
               className="space-y-8"
             >
-              {/* Top Row - Analysis and Metrics */}
+{/* Top Row - Analysis and Metrics */}
               <div className="grid lg:grid-cols-2 gap-6">
                 <VoiceAnalysis analysis={generatedContent.voiceAnalysis} />
                 <ContentMetrics metrics={generatedContent.contentMetrics} />
@@ -286,11 +286,13 @@ const handleGenerateContent = async () => {
               {/* SEO Tags */}
               <SEOTags tags={generatedContent.seoTags} />
 
-              {/* Bottom Row - Forum and Blog Posts */}
-              <div className="grid lg:grid-cols-2 gap-6">
-                <ForumPost content={generatedContent.forumPost} />
+              {/* Forum Post */}
+              <ForumPost content={generatedContent.forumPost} />
+
+              {/* Blog Post at Bottom */}
+              {generatedContent.blogPost && (
                 <BlogPost content={generatedContent.blogPost} />
-              </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

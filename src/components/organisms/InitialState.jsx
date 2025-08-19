@@ -10,18 +10,18 @@ const InitialState = ({ onSelectionChange }) => {
     "Copy and use across platforms"
   ];
 
-  const contentTypes = [
-"Voice & tone analysis",
+const contentTypes = [
+    "Voice & tone analysis",
     "YouTube descriptions", 
     "Forum discussions",
     "SEO-optimized tags",
     "Timestamp breakdowns",
     "Blog post"
-];
+  ];
 
-const [selectedTypes, setSelectedTypes] = useState(() => {
+  const [selectedTypes, setSelectedTypes] = useState(() => {
     // Initialize with database-compliant default states
-    // All content types checked except blog post (index 5) which defaults to unchecked
+    // All types checked except blog post (last item) which defaults to unchecked
     const defaultStates = contentTypes.map((_, index) => {
       // Blog post (last item) defaults to unchecked per default_checkbox_state_c field
       return index !== contentTypes.length - 1;
