@@ -135,29 +135,6 @@ function AppContent() {
   return (
     <AuthContext.Provider value={authMethods}>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-        {/* Logout Button - Only show when authenticated and not on auth pages */}
-        {isAuthenticated && !window.location.pathname.includes('/login') &&
-          !window.location.pathname.includes('/signup') &&
-          !window.location.pathname.includes('/callback') && (
-            <div className="absolute top-4 right-4 z-10">
-              <div className="flex items-center gap-6">
-                {user && (
-                  <div className="text-sm font-medium text-gray-700">
-                    Welcome, {user.firstName || user.name || 'User'}
-                  </div>
-                )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  icon="LogOut"
-                  onClick={authMethods.logout}
-                >
-                  Logout
-                </Button>
-              </div>
-            </div>
-          )}
-
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
