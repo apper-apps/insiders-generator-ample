@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import Card from "@/components/atoms/Card";
+import { toast } from "react-toastify";
 import ApperIcon from "@/components/ApperIcon";
+import Button from "@/components/atoms/Button";
+import Card from "@/components/atoms/Card";
+import TextArea from "@/components/atoms/TextArea";
 
-const InitialState = ({ onSelectionChange }) => {
+const InitialState = ({ onSelectionChange, transcript, onTranscriptChange }) => {
   const steps = [
     "Upload your video transcript",
     "AI analyzes voice and content",
@@ -19,6 +22,9 @@ const contentTypes = [
     "Blog post"
   ];
 
+  const transcriptFormats = ["SRT", "VTT", "TXT"];
+  const [selectedFormat, setSelectedFormat] = useState("TXT");
+  const [isDragOver, setIsDragOver] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState(() => {
     // Initialize with database-compliant default states
     // All types checked except blog post (last item) which defaults to unchecked
@@ -72,13 +78,106 @@ const contentTypes = [
 
 <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <ApperIcon name="Upload" size={18} className="text-purple-600" />
+            Add your transcript
+          </h3>
+          
+          {/* Transcript Input */}
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Paste transcript or upload file
+              </label>
+              <TextArea
+                value={transcript}
+                onChange={(e) => onTranscriptChange?.(e.target.value)}
+                placeholder="Paste your video transcript here..."
+                rows={6}
+                className="resize-none"
+              />
+              <div className="flex justify-between items-center text-xs text-gray-500">
+                <span>{transcript.length} characters</span>
+                {transcript.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onTranscriptChange?.('')}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    Clear
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* File Upload */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500">Or</span>
+                <div className="flex-1 h-px bg-gray-200"></div>
+              </div>
+              
+              <div
+                className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
+                  isDragOver 
+                    ? 'border-purple-400 bg-purple-50' 
+                    : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50'
+                }`}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragOver(true);
+                }}
+                onDragLeave={() => setIsDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragOver(false);
+                  const files = Array.from(e.dataTransfer.files);
+                  handleFileUpload(files[0]);
+                }}
+              >
+                <input
+                  type="file"
+                  id="transcript-upload"
+                  accept=".srt,.vtt,.txt"
+                  onChange={(e) => handleFileUpload(e.target.files[0])}
+                  className="hidden"
+                />
+                <label htmlFor="transcript-upload" className="cursor-pointer">
+                  <ApperIcon name="Upload" size={24} className="text-purple-600 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-700">
+                    Upload transcript file
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    SRT, VTT, or TXT files
+                  </p>
+                </label>
+              </div>
+
+              {/* Format Selection */}
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-gray-600">Format:</label>
+                <select
+                  value={selectedFormat}
+                  onChange={(e) => setSelectedFormat(e.target.value)}
+                  className="text-xs border border-gray-300 rounded px-2 py-1 bg-white"
+                >
+                  {transcriptFormats.map(format => (
+                    <option key={format} value={format}>{format}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <ApperIcon name="ArrowDown" size={18} className="text-green-600" />
             What do you need?
           </h3>
           <div className="space-y-3">
-{contentTypes.map((type, index) => {
+            {contentTypes.map((type, index) => {
               return (
-
                 <div 
                   key={index} 
                   className="flex items-center gap-3 cursor-pointer"
@@ -101,6 +200,13 @@ const contentTypes = [
         </div>
       </div>
 
+      {/* File Upload Handler */}
+      <script dangerouslySetInnerHTML={{
+        __html: `
+          window.handleFileUpload = ${handleFileUpload.toString()};
+        `
+      }} />
+
       <div className="mt-8 pt-6 border-t border-gray-200">
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4">
           <div className="flex items-start gap-3">
@@ -114,8 +220,67 @@ const contentTypes = [
           </div>
         </div>
       </div>
-    </Card>
+</Card>
   );
+
+  // File upload handler function
+  function handleFileUpload(file) {
+    if (!file) return;
+    
+    const validTypes = ['text/plain', 'application/x-subrip', 'text/vtt'];
+    const validExtensions = ['.txt', '.srt', '.vtt'];
+    const hasValidExtension = validExtensions.some(ext => 
+      file.name.toLowerCase().endsWith(ext)
+    );
+    
+    if (!validTypes.includes(file.type) && !hasValidExtension) {
+      toast.error('Please upload a valid transcript file (SRT, VTT, or TXT)');
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      let content = e.target.result;
+      
+      // Parse based on file type
+      if (file.name.toLowerCase().endsWith('.srt')) {
+        content = parseSRT(content);
+        setSelectedFormat('SRT');
+      } else if (file.name.toLowerCase().endsWith('.vtt')) {
+        content = parseVTT(content);
+        setSelectedFormat('VTT');
+      } else {
+        setSelectedFormat('TXT');
+      }
+      
+      onTranscriptChange?.(content);
+      toast.success(`Transcript uploaded successfully (${file.name})`);
+    };
+    
+    reader.onerror = () => {
+      toast.error('Error reading file. Please try again.');
+    };
+    
+    reader.readAsText(file);
+  }
+
+  // SRT parser
+  function parseSRT(content) {
+    return content
+      .replace(/^\d+\s*$/gm, '')  // Remove subtitle numbers
+      .replace(/\d{2}:\d{2}:\d{2},\d{3}\s*-->\s*\d{2}:\d{2}:\d{2},\d{3}/g, '') // Remove timestamps
+      .replace(/\n\s*\n/g, '\n') // Remove empty lines
+      .trim();
+  }
+
+  // VTT parser  
+  function parseVTT(content) {
+    return content
+      .replace(/^WEBVTT\s*$/m, '') // Remove WEBVTT header
+      .replace(/\d{2}:\d{2}:\d{2}\.\d{3}\s*-->\s*\d{2}:\d{2}:\d{2}\.\d{3}/g, '') // Remove timestamps
+      .replace(/\n\s*\n/g, '\n') // Remove empty lines
+      .trim();
+  }
 };
 
 export default InitialState;

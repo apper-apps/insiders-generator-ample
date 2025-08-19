@@ -19,11 +19,12 @@ import Button from "@/components/atoms/Button";
 import contentService from "@/services/api/contentService";
 
 const ContentGenerator = () => {
-  const [generatedContent, setGeneratedContent] = useState(null);
+const [generatedContent, setGeneratedContent] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showPromptEditor, setShowPromptEditor] = useState(false);
-const [selectedTypes, setSelectedTypes] = useState(() => {
+  const [transcript, setTranscript] = useState('');
+  const [selectedTypes, setSelectedTypes] = useState(() => {
     const contentTypes = [
       "Voice & tone analysis",
       "YouTube descriptions", 
@@ -122,7 +123,7 @@ const handleGenerateContent = async () => {
     setError(null);
 
     try {
-      const content = await contentService.generateContent("", customPrompt, selectedTypes);
+const content = await contentService.generateContent(transcript, customPrompt, selectedTypes);
       setGeneratedContent(content);
       toast.success("Content generated successfully!");
     } catch (err) {
@@ -247,7 +248,11 @@ const handleGenerateContent = async () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-<InitialState onSelectionChange={handleSelectionChange} />
+<InitialState 
+                onSelectionChange={handleSelectionChange} 
+                transcript={transcript}
+                onTranscriptChange={setTranscript}
+              />
               <div className="mt-8 text-center">
                 <Button
                   variant="primary"
