@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import Button from "@/components/atoms/Button";
@@ -15,6 +15,8 @@ import PromptEditor from "@/components/organisms/PromptEditor";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
 import contentService from "@/services/api/contentService";
+import { AuthContext } from "../../App";
+import { useSelector } from "react-redux";
 
 const ContentGenerator = () => {
   const [generatedContent, setGeneratedContent] = useState(null);
@@ -66,10 +68,13 @@ const ContentGenerator = () => {
 
 Focus on creating authentic, valuable content that maintains the original voice while optimizing for each platform's best practices.`);
 
+  const { logout } = useContext(AuthContext);
+  const { user } = useSelector((state) => state.user);
+
   const handleGenerateContent = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const content = await contentService.generateContent("", customPrompt);
       setGeneratedContent(content);
@@ -114,35 +119,55 @@ Focus on creating authentic, valuable content that maintains the original voice 
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                icon="Settings"
-                onClick={() => setShowPromptEditor(true)}
-              >
-                EDIT PROMPT
-              </Button>
-              
-              <AnimatePresence>
-                {generatedContent && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                  >
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      icon="RotateCcw"
-                      onClick={handleReset}
-                    >
-                      RESET
-                    </Button>
-                  </motion.div>
+            {/* Right side with authentication and action buttons */}
+            <div className="flex items-center gap-6">
+              {/* Authentication elements */}
+              <div className="flex items-center gap-4">
+                {user && (
+                  <div className="text-sm font-medium text-gray-700">
+                    Welcome, {user.firstName || user.name || 'User'}
+                  </div>
                 )}
-              </AnimatePresence>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  icon="LogOut"
+                  onClick={logout}
+                >
+                  Logout
+                </Button>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  icon="Settings"
+                  onClick={() => setShowPromptEditor(true)}
+                >
+                  EDIT PROMPT
+                </Button>
+
+                <AnimatePresence>
+                  {generatedContent && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                    >
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        icon="RotateCcw"
+                        onClick={handleReset}
+                      >
+                        RESET
+                      </Button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
         </div>
