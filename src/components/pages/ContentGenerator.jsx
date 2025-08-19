@@ -254,17 +254,25 @@ const content = await contentService.generateContent(transcript, customPrompt, s
                 onTranscriptChange={setTranscript}
               />
               <div className="mt-8 text-center">
-                <Button
+<Button
                   variant="primary"
                   size="lg"
                   icon="Sparkles"
                   onClick={handleGenerateContent}
-                  className="shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
+                  disabled={!transcript || transcript.trim() === ''}
+                  className={`shadow-lg transition-all duration-200 ${
+                    transcript && transcript.trim() !== '' 
+                      ? 'hover:shadow-xl transform hover:scale-[1.02]' 
+                      : 'opacity-50 cursor-not-allowed'
+                  }`}
                 >
-                  Generate Demo Content
+                  Generate Content
                 </Button>
                 <p className="mt-3 text-sm text-gray-500">
-                  Click to see the content generation interface with sample data
+                  {transcript && transcript.trim() !== '' 
+                    ? 'Click to generate content from your transcript' 
+                    : 'Please add a transcript above to generate content'
+                  }
                 </p>
               </div>
             </motion.div>

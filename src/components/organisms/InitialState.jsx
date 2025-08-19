@@ -22,8 +22,6 @@ const contentTypes = [
     "Blog post"
   ];
 
-  const transcriptFormats = ["SRT", "VTT", "TXT"];
-  const [selectedFormat, setSelectedFormat] = useState("TXT");
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState(() => {
     // Initialize with database-compliant default states
@@ -148,10 +146,6 @@ const contentTypes = [
 
             {/* Right: File Upload */}
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">Or</span>
-                <div className="flex-1 h-px bg-gray-200"></div>
-              </div>
               
               <div
                 className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
@@ -189,19 +183,6 @@ const contentTypes = [
                 </label>
               </div>
 
-              {/* Format Selection */}
-              <div className="flex items-center gap-2">
-                <label className="text-xs text-gray-600">Format:</label>
-                <select
-                  value={selectedFormat}
-                  onChange={(e) => setSelectedFormat(e.target.value)}
-                  className="text-xs border border-gray-300 rounded px-2 py-1 bg-white"
-                >
-                  {transcriptFormats.map(format => (
-                    <option key={format} value={format}>{format}</option>
-                  ))}
-                </select>
-              </div>
             </div>
           </div>
         </Card>
@@ -250,14 +231,10 @@ const contentTypes = [
       let content = e.target.result;
       
       // Parse based on file type
-      if (file.name.toLowerCase().endsWith('.srt')) {
+if (file.name.toLowerCase().endsWith('.srt')) {
         content = parseSRT(content);
-        setSelectedFormat('SRT');
       } else if (file.name.toLowerCase().endsWith('.vtt')) {
         content = parseVTT(content);
-        setSelectedFormat('VTT');
-      } else {
-        setSelectedFormat('TXT');
       }
       
       onTranscriptChange?.(content);
