@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Card from "@/components/atoms/Card";
 import ApperIcon from "@/components/ApperIcon";
 
-const InitialState = () => {
+const InitialState = ({ onSelectionChange }) => {
   const steps = [
     "Upload your video transcript",
     "AI analyzes voice and content",
@@ -11,20 +11,28 @@ const InitialState = () => {
   ];
 
   const contentTypes = [
-    "Voice & tone analysis",
+"Voice & tone analysis",
     "YouTube descriptions", 
-    "Blog post content",
     "Forum discussions",
     "SEO-optimized tags",
-    "Timestamp breakdowns"
+    "Timestamp breakdowns",
+    "Blog post"
 ];
 
-  const [selectedTypes, setSelectedTypes] = useState(new Array(contentTypes.length).fill(false));
+const [selectedTypes, setSelectedTypes] = useState(() => {
+    const initialState = new Array(contentTypes.length).fill(true);
+    initialState[contentTypes.length - 1] = false; // Blog post unchecked by default
+    return initialState;
+  });
   
   const toggleContentType = (index) => {
     const newSelected = [...selectedTypes];
     newSelected[index] = !newSelected[index];
     setSelectedTypes(newSelected);
+    // Pass selections to parent if callback provided
+    if (onSelectionChange) {
+      onSelectionChange(newSelected);
+    }
   };
 
   return (

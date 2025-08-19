@@ -19,10 +19,23 @@ import { AuthContext } from "../../App";
 import { useSelector } from "react-redux";
 
 const ContentGenerator = () => {
-  const [generatedContent, setGeneratedContent] = useState(null);
+const [generatedContent, setGeneratedContent] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showPromptEditor, setShowPromptEditor] = useState(false);
+  const [selectedTypes, setSelectedTypes] = useState(() => {
+    const contentTypes = [
+      "Voice & tone analysis",
+      "YouTube descriptions", 
+      "Forum discussions",
+      "SEO-optimized tags",
+      "Timestamp breakdowns",
+      "Blog post"
+    ];
+    const initialState = new Array(contentTypes.length).fill(true);
+    initialState[contentTypes.length - 1] = false; // Blog post unchecked by default
+    return initialState;
+  });
   const [customPrompt, setCustomPrompt] = useState(`You are an expert content creator and SEO specialist. Transform the provided video transcript into comprehensive, SEO-optimized content for multiple platforms. Analyze the transcript and generate:
 
 1. VOICE ANALYSIS:
@@ -71,12 +84,15 @@ Focus on creating authentic, valuable content that maintains the original voice 
   const { logout } = useContext(AuthContext);
   const { user } = useSelector((state) => state.user);
 
-  const handleGenerateContent = async () => {
+  const handleSelectionChange = (newSelectedTypes) => {
+    setSelectedTypes(newSelectedTypes);
+  };
+const handleGenerateContent = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const content = await contentService.generateContent("", customPrompt);
+      const content = await contentService.generateContent("", customPrompt, selectedTypes);
       setGeneratedContent(content);
       toast.success("Content generated successfully!");
     } catch (err) {
@@ -201,7 +217,7 @@ Focus on creating authentic, valuable content that maintains the original voice 
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <InitialState />
+<InitialState onSelectionChange={handleSelectionChange} />
               <div className="mt-8 text-center">
                 <Button
                   variant="primary"

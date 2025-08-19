@@ -85,13 +85,78 @@ const mockContentData = {
 };
 
 const contentService = {
-  generateContent: async (transcript, customPrompt) => {
+generateContent: async (transcript, customPrompt, selectedTypes) => {
     // Simulate realistic API delay
     await delay(2000);
     
     try {
+      // Content type mapping to match the selection order
+      const contentTypeMap = [
+        "voiceAnalysis",      // Voice & tone analysis
+        "youtubeDescription", // YouTube descriptions
+        "forumPost",         // Forum discussions
+        "seoTags",           // SEO-optimized tags
+        "timestamps",        // Timestamp breakdowns
+        "blogPost"           // Blog post
+      ];
+      
+      // Create dynamic prompt based on selected types
+      let dynamicPrompt = customPrompt;
+      if (selectedTypes && selectedTypes.length > 0) {
+        const promptSections = [
+          { name: "VOICE ANALYSIS", selected: selectedTypes[0] },
+          { name: "CONTENT METRICS", selected: true }, // Always include metrics
+          { name: "YOUTUBE DESCRIPTION", selected: selectedTypes[1] },
+          { name: "TIMESTAMPS", selected: selectedTypes[4] },
+          { name: "SEO TAGS", selected: selectedTypes[3] },
+          { name: "FORUM POST", selected: selectedTypes[2] },
+          { name: "BLOG POST", selected: selectedTypes[5] }
+        ];
+        
+        // Build custom prompt with only selected sections
+        const selectedSections = promptSections.filter(section => section.selected);
+        if (selectedSections.length < promptSections.length) {
+          dynamicPrompt = `You are an expert content creator and SEO specialist. Transform the provided video transcript into comprehensive, SEO-optimized content for the following platforms:\n\n`;
+          selectedSections.forEach((section, index) => {
+            switch(section.name) {
+              case "VOICE ANALYSIS":
+                dynamicPrompt += `${index + 1}. VOICE ANALYSIS:\n- Tone (professional, casual, enthusiastic, etc.)\n- Style (conversational, authoritative, educational, etc.)\n- Personality traits (confident, approachable, expert, etc.)\n- Language level (beginner, intermediate, advanced, expert)\n\n`;
+                break;
+              case "CONTENT METRICS":
+                dynamicPrompt += `${index + 1}. CONTENT METRICS:\n- Accurate word count of transcript\n- Estimated video length\n- Primary content category\n- 8-12 relevant keywords/phrases\n\n`;
+                break;
+              case "YOUTUBE DESCRIPTION":
+                dynamicPrompt += `${index + 1}. YOUTUBE DESCRIPTION:\n- Compelling hook in first 125 characters\n- Detailed description with timestamps\n- Relevant hashtags and keywords\n- Call-to-action and engagement prompts\n\n`;
+                break;
+              case "TIMESTAMPS":
+                dynamicPrompt += `${index + 1}. TIMESTAMPS:\n- 6-10 key moments with exact timestamps\n- Descriptive titles for each section\n- Natural chapter breaks\n\n`;
+                break;
+              case "SEO TAGS":
+                dynamicPrompt += `${index + 1}. SEO TAGS:\n- 15-20 relevant tags for discoverability\n- Mix of broad and specific keywords\n- Platform-optimized hashtags\n\n`;
+                break;
+              case "FORUM POST":
+                dynamicPrompt += `${index + 1}. FORUM POST:\n- Engaging discussion starter\n- Key insights and takeaways\n- Questions to encourage engagement\n- Community-appropriate tone\n\n`;
+                break;
+              case "BLOG POST":
+                dynamicPrompt += `${index + 1}. BLOG POST:\n- SEO-optimized article (800-1200 words)\n- Compelling headline and introduction\n- Structured sections with subheadings\n- Markdown formatting for easy copying\n- Meta description and conclusion\n\n`;
+                break;
+            }
+          });
+          dynamicPrompt += "Focus on creating authentic, valuable content that maintains the original voice while optimizing for each platform's best practices.";
+        }
+      }
+      
       // Return a copy of mock data to prevent mutations
       const content = JSON.parse(JSON.stringify(mockContentData));
+      
+      // Filter content based on selected types
+      if (selectedTypes && selectedTypes.length > 0) {
+        contentTypeMap.forEach((contentKey, index) => {
+          if (!selectedTypes[index] && content[contentKey]) {
+            delete content[contentKey];
+          }
+        });
+      }
       
       // Add some variation to make it feel more dynamic
       const variations = {
@@ -100,10 +165,12 @@ const contentService = {
         category: ["Technology & Education", "Business & Marketing", "Creative & Design", "Health & Wellness"][Math.floor(Math.random() * 4)]
       };
       
-      content.contentMetrics = {
-        ...content.contentMetrics,
-        ...variations
-      };
+      if (content.contentMetrics) {
+        content.contentMetrics = {
+          ...content.contentMetrics,
+          ...variations
+        };
+      }
       
       return content;
     } catch (error) {
