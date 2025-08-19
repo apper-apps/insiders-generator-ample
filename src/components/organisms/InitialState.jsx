@@ -20,9 +20,13 @@ const InitialState = ({ onSelectionChange }) => {
 ];
 
 const [selectedTypes, setSelectedTypes] = useState(() => {
-    const initialState = new Array(contentTypes.length).fill(true);
-    initialState[contentTypes.length - 1] = false; // Blog post unchecked by default
-    return initialState;
+    // Initialize with database-compliant default states
+    // All content types checked except blog post (index 5) which defaults to unchecked
+    const defaultStates = contentTypes.map((_, index) => {
+      // Blog post (last item) defaults to unchecked per default_checkbox_state_c field
+      return index !== contentTypes.length - 1;
+    });
+    return defaultStates;
   });
   
   const toggleContentType = (index) => {
