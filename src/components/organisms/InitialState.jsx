@@ -58,7 +58,9 @@ const contentTypes = [
         </p>
       </div>
 
-<div className="grid md:grid-cols-2 gap-8">
+{/* Top Section: Two Column Layout */}
+      <div className="grid md:grid-cols-2 gap-8 mb-8">
+        {/* Left Column: How it works */}
         <Card className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <ApperIcon name="Sparkles" size={18} className="text-blue-600" />
@@ -76,14 +78,48 @@ const contentTypes = [
           </div>
         </Card>
 
-<Card className="space-y-4">
+        {/* Right Column: What do you need? */}
+        <Card className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <ApperIcon name="ArrowDown" size={18} className="text-green-600" />
+            What do you need?
+          </h3>
+          <div className="space-y-3">
+            {contentTypes.map((type, index) => {
+              return (
+                <div 
+                  key={index} 
+                  className="flex items-center gap-3 cursor-pointer"
+                  onClick={() => toggleContentType(index)}
+                >
+                  <div className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
+                    selectedTypes[index] 
+                      ? 'bg-green-100' 
+                      : 'border-2 border-gray-300 bg-white'
+                  }`}>
+                    {selectedTypes[index] && (
+                      <ApperIcon name="Check" size={14} className="text-green-600" />
+                    )}
+                  </div>
+                  <p className="text-gray-700">{type}</p>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      </div>
+
+      {/* Bottom Section: Full Width Add your transcript - Horizontal Layout */}
+      <div className="w-full">
+        <Card className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <ApperIcon name="Upload" size={18} className="text-purple-600" />
             Add your transcript
           </h3>
           
-          {/* Transcript Input */}
-          <div className="space-y-3">
+          {/* Horizontal Layout for Transcript Input and File Upload */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Left: Transcript Input */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">
                 Paste transcript or upload file
@@ -110,7 +146,7 @@ const contentTypes = [
               </div>
             </div>
 
-            {/* File Upload */}
+            {/* Right: File Upload */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-500">Or</span>
@@ -167,35 +203,6 @@ const contentTypes = [
                 </select>
               </div>
             </div>
-          </div>
-        </Card>
-
-<Card className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <ApperIcon name="ArrowDown" size={18} className="text-green-600" />
-            What do you need?
-          </h3>
-          <div className="space-y-3">
-            {contentTypes.map((type, index) => {
-              return (
-                <div 
-                  key={index} 
-                  className="flex items-center gap-3 cursor-pointer"
-                  onClick={() => toggleContentType(index)}
-                >
-                  <div className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
-                    selectedTypes[index] 
-                      ? 'bg-green-100' 
-                      : 'border-2 border-gray-300 bg-white'
-                  }`}>
-                    {selectedTypes[index] && (
-                      <ApperIcon name="Check" size={14} className="text-green-600" />
-                    )}
-                  </div>
-                  <p className="text-gray-700">{type}</p>
-                </div>
-              );
-            })}
           </div>
         </Card>
       </div>
