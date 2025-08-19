@@ -58,8 +58,8 @@ const contentTypes = [
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        <div className="space-y-4">
+<div className="grid md:grid-cols-2 gap-8">
+        <Card className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <ApperIcon name="Sparkles" size={18} className="text-blue-600" />
             How it works
@@ -74,9 +74,9 @@ const contentTypes = [
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
-<div className="space-y-4">
+<Card className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <ApperIcon name="Upload" size={18} className="text-purple-600" />
             Add your transcript
@@ -168,9 +168,9 @@ const contentTypes = [
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
-        <div className="space-y-4">
+<Card className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <ApperIcon name="ArrowDown" size={18} className="text-green-600" />
             What do you need?
@@ -197,7 +197,7 @@ const contentTypes = [
               );
             })}
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* File Upload Handler */}
