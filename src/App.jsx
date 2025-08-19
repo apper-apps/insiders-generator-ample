@@ -11,6 +11,7 @@ import ResetPassword from "@/components/pages/ResetPassword";
 import PromptPassword from "@/components/pages/PromptPassword";
 import ContentGenerator from "@/components/pages/ContentGenerator";
 import Button from "@/components/atoms/Button";
+import ApperIcon from "@/components/ApperIcon";
 
 // Create auth context
 export const AuthContext = createContext(null);
@@ -20,21 +21,21 @@ function AppContent() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isInitialized, setIsInitialized] = useState(false);
-  
+
   // Get authentication status with proper error handling
   const userState = useSelector((state) => state.user);
   const isAuthenticated = userState?.isAuthenticated || false;
   const user = userState?.user;
-  
+
   // Initialize ApperUI once when the app loads
   useEffect(() => {
     const { ApperClient, ApperUI } = window.ApperSDK;
-    
+
     const client = new ApperClient({
       apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
       apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
     });
-    
+
     // Initialize but don't show login yet
     ApperUI.setup(client, {
       target: '#authentication',
@@ -46,10 +47,10 @@ function AppContent() {
         // DO NOT simplify or modify this pattern as it ensures proper redirection flow
         let currentPath = window.location.pathname + window.location.search;
         let redirectPath = new URLSearchParams(window.location.search).get('redirect');
-        const isAuthPage = currentPath.includes('/login') || currentPath.includes('/signup') || 
-                           currentPath.includes('/callback') || currentPath.includes('/error') || 
-                           currentPath.includes('/prompt-password') || currentPath.includes('/reset-password');
-        
+        const isAuthPage = currentPath.includes('/login') || currentPath.includes('/signup') ||
+          currentPath.includes('/callback') || currentPath.includes('/error') ||
+          currentPath.includes('/prompt-password') || currentPath.includes('/reset-password');
+
         if (user) {
           // User is authenticated
           if (redirectPath) {
@@ -72,8 +73,8 @@ function AppContent() {
               currentPath.includes('/signup')
                 ? `/signup?redirect=${currentPath}`
                 : currentPath.includes('/login')
-                ? `/login?redirect=${currentPath}`
-                : '/login'
+                  ? `/login?redirect=${currentPath}`
+                  : '/login'
             );
           } else if (redirectPath) {
             if (
@@ -91,13 +92,13 @@ function AppContent() {
           dispatch(clearUser());
         }
       },
-      onError: function(error) {
+      onError: function (error) {
         console.error("Authentication failed:", error);
         setIsInitialized(true);
       }
     });
   }, []);// No props and state should be bound
-  
+
   // Authentication methods to share via context
   const authMethods = {
     isInitialized,
@@ -112,7 +113,7 @@ function AppContent() {
       }
     }
   };
-  
+
   // Don't render routes until initialization is complete
   if (!isInitialized) {
     return (
@@ -130,33 +131,69 @@ function AppContent() {
       </div>
     );
   }
-  
+
   return (
     <AuthContext.Provider value={authMethods}>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-        {/* Logout Button - Only show when authenticated and not on auth pages */}
-        {isAuthenticated && !window.location.pathname.includes('/login') && 
-         !window.location.pathname.includes('/signup') && 
-         !window.location.pathname.includes('/callback') && (
-          <div className="absolute top-4 right-4 z-10">
-            <div className="flex items-center gap-3">
-              {user && (
-                <div className="text-sm font-medium text-gray-700">
-                  Welcome, {user.firstName || user.name || 'User'}
+        {/* User Menu Dropdown - Only show when authenticated and not on auth pages */}
+        {isAuthenticated && !window.location.pathname.includes('/login') &&
+          !window.location.pathname.includes('/signup') &&
+          !window.location.pathname.includes('/callback') && (
+            <div className="absolute top-4 right-4 z-10">
+              <div className="relative group">
+                {/* Dropdown Trigger */}
+                <button className="flex items-center gap-2 p-2 rounded-lg bg-white/90 backdrop-blur-sm border border-gray-200/50 shadow-sm hover:bg-white/95 transition-all duration-200">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-semibold">
+                    {user?.firstName?.charAt(0) || user?.name?.charAt(0) || 'U'}
+                  </div>
+                  <span className="text-sm font-medium text-gray-700 hidden sm:block">
+                    {user?.firstName || user?.name || 'User'}
+                  </span>
+                  <ApperIcon name="ChevronDown" size={16} className="text-gray-500" />
+                </button>
+
+                {/* Dropdown Menu */}
+                <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200/50 backdrop-blur-sm opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20">
+                  <div className="p-4 border-b border-gray-100">
+                    <div className="text-sm font-medium text-gray-900">
+                      Welcome, {user?.firstName || user?.name || 'User'}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {user?.email || 'user@example.com'}
+                    </div>
+                  </div>
+
+                  <div className="p-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      icon="Settings"
+                      className="w-full justify-start text-gray-700 hover:bg-gray-50"
+                      onClick={() => {
+                        // Navigate to content generator page where EDIT PROMPT button is located
+                        navigate('/');
+                      }}
+                    >
+                      EDIT PROMPT
+                    </Button>
+                  </div>
+
+                  <div className="p-2 border-t border-gray-100">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      icon="LogOut"
+                      className="w-full justify-start text-red-600 hover:bg-red-50"
+                      onClick={authMethods.logout}
+                    >
+                      Logout
+                    </Button>
+                  </div>
                 </div>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                icon="LogOut"
-                onClick={authMethods.logout}
-              >
-                Logout
-              </Button>
+              </div>
             </div>
-          </div>
-        )}
-        
+          )}
+
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
@@ -179,7 +216,7 @@ function AppContent() {
           className="toast-container"
         />
       </div>
-</AuthContext.Provider>
+    </AuthContext.Provider>
   );
 }
 
